@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>登录-医联通WEB管理系统</title>
+</head>
+<body>
+<style>
+    *{margin:0px;padding:0px;}
+    .bg{
+        height: 100vh;
+        background: url("/images/bg.jpg") no-repeat center;
+        position: relative;
+        min-width:800px;
+        min-height:600px;
+    }
+    .login-box{background-color:#fff;width:480px;height:350px;left:50%;position:absolute;top:35%;box-shadow:2px 2px 3px #aaaaaa;border:1px solid #BFBFBF;}
+    .innner{margin-top:40px;}
+    .title{font-size:35px;color:#eb4339;margin-bottom:50px;text-align:center;}
+    .item{height:40px;color:#0000ff;margin-top:20px;margin:0 auto;width:380px;margin-top:20px;}
+    .item input{border:1px solid #dcdcdc;height:30px;width:300px;padding-left:10px;}
+    .item input:focus{border:1px solid #f6483e;}
+    .item span{width:60px;display:inline-block;float:left;line-height:30px;color:#2B2E37;}
+    .item input.bt{background-color: #f6483e;color: #fff;width: 200px;height:40px;border-radius: 3px;border: 1px solid #f65e55;display:block;margin-left:110px;margin:0 auto;margin-top:30px;}
+    .item input.bt:hover{background-color:#e64239;}
+    .item input.bt:active{background-color:#d7363e;}
+    #tip{margin-left:350px;color:red;}
+    .copyright{position:absolute;bottom:15px;text-align:center;width:100%;font-size:14px;color:#2B2E37;}
+    .copyright a{color:#2B2E37;}
+</style>
+<div class="bg">
+    <form class="form-signin" method="post" id="loginForm" onsubmit="return false;">
+    <div class="login-box">
+        <div class="innner">
+            <div class="title">医联通WEB管理系统</div>
+            <div class="item"><span>用户名</span><input type="text" name="username"></div>
+            <div class="item"><span>密码</span><input type="password" name="password"></div>
+            <div class="item"><span>验证码</span><input type="password" name="imageCode"><img src="/code/image" id="codeImage" onclick="javascript:this.src='/code/image?random='+Math.random()"></div>
+            <div class="item"><span>记住</span><input type="checkbox" name="remember-me" value="true"></div>
+            <div class="item"><input type="button" value="登录" id="loginBtn" class="bt"></div>
+            <span id="tip"></span>
+        </div>
+    </div>
+    </form>
+    <div class="copyright">Copyright 2015 - 2019 <a href="http://www.eltyl.com">太原医联通数字医疗科技有限公司</a> 版权所有</div>
+</div>
+</body>
+<script src="/js/jquery.min.js"></script>
+<script>
+    $(document).ready(function(){
+        $("#loginBtn").click(function(){
+            $.post("/doLogin",$("#loginForm").serialize(),function(data){
+                if(data.code==0){
+                    window.location.href="/";
+                }else{
+                    $("#tip").html("登录失败,"+data.msg);
+                }
+            },"json");
+        });
+    });
+</script>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>登录页</title>
+    <script type="text/javascript" src="/js/jquery.js"></script>
+</head>
+<body>
+<form class="form-signin" method="post" id="loginForm" onsubmit="return false;">
+    <h2 class="form-signin-heading">登录</h2>
+    <p>
+        <label for="username" class="sr-only">Username</label>
+        <input type="text" id="username" name="username" class="form-control" placeholder="Username" required autofocus>
+    </p>
+    <p>
+        <label for="password" class="sr-only">Password</label>
+        <input type="password" id="password" name="password" class="form-control" placeholder="Password" required>
+    </p>
+    <div class="form_text_ipt">
+        <input style="width: 150px;" name="imageCode" type="text" placeholder="验证码">
+        <img src="/code/image" id="codeImage" onclick="javascript:this.src='/code/image?random='+Math.random()">
+    </div>
+    <p>
+        <label for="password" class="sr-only">记住登录</label>
+        <input type="checkbox" name="remember-me" value="true">
+    </p>
+    <button class="btn btn-lg btn-primary btn-block" id="loginBtn">登录</button>
+</form>
+<script>
+    $("document").ready(function(){
+        $("#loginBtn").click(function(){
+            $.post("/doLogin",$("#loginForm").serialize(),function(data){
+                if(data.code==0){
+                    window.location.href="/";
+                }else{
+                    alert("登录失败："+data.msg);
+                }
+            },"json");
+        });
+    });
+</script>
+</body>
+</html>
