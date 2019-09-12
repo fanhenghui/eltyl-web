@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.eltyl</groupId>
-    <artifactId>web2</artifactId>
+    <artifactId>eltyl_web</artifactId>
     <version>1.0.0</version>
     <name>web2</name>
     <description>web2</description>
