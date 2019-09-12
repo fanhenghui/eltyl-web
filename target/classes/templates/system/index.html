@@ -1,0 +1,163 @@
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>医联通WEB管理系统</title>
+<meta name="keywords" content="" />
+<meta name="description" content="" />
+<META HTTP-EQUIV="Cache-Control" CONTENT="no-cache,no-store, must-revalidate">
+<meta http-equiv="pragma" content="no-cache" />
+<meta http-equiv="expires" content="0" />
+<link rel="stylesheet" type="text/css" href="/css/style.css">
+</head>
+<body>
+<div class="wrapper">
+	<div class="main-header">
+		<div class="logo">医联通WEB管理系统</div>
+		<div class="board"></div>
+		<div class="header-menu">
+			<a href="/auth" target="_blank" title="登录用户信息"><img src="/images/passwd.png"></a>
+			<a href=""><img src="/images/notify.png"></a>
+			<a href="/logout"><img src="/images/exit.png"></a>
+		</div>
+	</div>
+	<div class="sidebar">
+		<div class="sidebar-wrapper">
+			<div class="user">
+				<img class="nav-user-photo" src="/images/user.png" alt="当前用户头像">
+				<div>${nickname}</div>
+			</div>
+			<ui class="top-menu">
+				<li class="top-menu-item active" url="/home">首页</li>
+				<li class="top-menu-item second-off">系统设置</li>
+				<ul class="sub-menu">
+					<li class="sub-menu-item" url="/system/user">用户管理</li>
+					<li class="sub-menu-item" url="/system/role">角色管理</li>
+					<li class="sub-menu-item" url="/system/permission">权限管理</li>
+				</ul>
+			</ui>
+		</div>
+	</div>
+	<div class="main-panel">
+		<div class="my" id="my">
+			<div class="nav">
+				<span style="font-weight:bold;">首页</span>
+			</div>
+			<div class="stat">
+				<div class="item"><span class="now">今日检查（次）</span><span class="comment">总计30000次</span><span class="num">12500</span></div>
+				<div class="item"><span class="now">影像数量（张）</span><span class="comment">总计30000次</span><span class="num">512856</span></div>
+				<div class="item"><span class="now">检查空间（T）</span><span class="comment">总计30T</span><span class="num">80G</span></div>
+				<div class="item"><span class="now">入账医院（家）</span><span class="num">20</span></div>
+				<div class="cb"></div>
+			</div>
+			<div class="panel">
+				<div class="title">更新日志</div>
+				<div id="update_log" style="height: 475px;overflow-y:scroll;line-height:25px;font-size:14px;margin:10px;padding:40px;">
+                                    <h3># v3.0.0（升级） - 2018-07-26</h3>
+                                    <p>* 界面重大升级，去除layui的依赖</p>
+                                    <br>
+                                    <h3># v2.4.1（升级） - 2017-12-19</h3>
+                                    <p>* 后台菜单部分大调整，功能划分更加清晰</p>
+                                    <p>* 优化登录页</p>
+                                    <p>* 增加极验验证功能</p>
+                                    <br>
+                                    <h3># v2.3.1（优化） - 2017-12-05</h3>
+                                    <p>* 添加模块运行维护</p>
+                                    <p>* 修复统计部分搜索的错误</p>
+                                    <p>* 增加新版上传的管理和统计</p>
+                                    <p>* 调整菜单分布</p>
+                                    <p>* 调整医院数据的存储形式</p>
+                                    <br>
+                                    <h3># v2.3.0（升级） - 2017-11-30</h3>
+                                    <p>* 添加分布式存储管理模块</p>
+                                    <p>* 添加新版上传系统管理模块</p>
+                                    <p>* 修复由于业务代码调整而导致的分页错乱问题</p>
+                                    <p>* 修复laydate选择回调使用错误的问题</p>
+                                    <p>* 完善登录错误提示的问题</p>
+                                    <br>
+                                    <h3># v2.2.0（优化） - 2017-11-16</h3>
+                                    <p>* ui部分错位问题的修改</p>
+                                    <p>* 每个页面顶部搜索样式的优化</p>
+                                    <p>* 新增阅片器版本管理模块</p>
+                                    <p>* 修复刷新当前页无法使用的问题</p>
+                                    <p>* 添加点击tab时自动再次刷新的机制</p>
+                                    <br>
+                                    <h3># v2.1.0（优化） - 2017-11-04</h3>
+                                    <p>* 升级到springboot+mybaits+layui架构</p>
+                                    <p>* 升级登录页</p>
+                                    <p>* 优化用户体验</p>
+                                    <br>
+                                    <p># v2.0.0（java升级版） - 2016-11-08</p>
+                                    <p>基于springmvc+mybaits实现</p>
+                                    <br>
+                                    <p># v1.0.0（初版） - 2016-06-05</p>
+                                    <p>基于thinkphp+ H+ui实现</p>
+                                </div>
+			</div>
+		</div>
+	</div>
+	<div class="copyright">
+		<div class="system-name">
+          <span>医联通管理系统&nbsp;v2.3</span>
+        </div>
+        <div class="copyright-name">
+          <span>CopyRight&nbsp;2019&nbsp;&nbsp;eltyl.com&nbsp;版权所有</span>
+        </div>
+	</div>
+</div>
+</body>
+<script src="/js/jquery.min.js"></script>
+<script src="/js/jquery.nicescroll.min.js"></script>
+<script src="/js/layer/layer.js"></script>
+<script>
+$(document).ready(function(){
+	$(".top-menu li").click(function(){
+		if($(this).attr("url")!=undefined)
+		{
+			$(".top-menu li").each(function(){
+				$(this).removeClass("active");
+			});
+			$(this).addClass("active");
+			$.ajax({
+				async: true, cache: false, type: 'GET', dataType: "html", data: {}, url: $(this).attr("url"),
+				// 请求的action路径
+				success: function (response) {
+					if(response=="登录超时")window.location="/login";
+					else $("#my").html(response);
+				},
+				complete : function(XMLHttpRequest, textStatus) {
+					/*var sessionstatus = XMLHttpRequest.getResponseHeader("sessionstatus");
+					if (sessionstatus == "timeout")window.location.replace("login");*/
+				}
+			});
+		}
+	});
+	$(".top-menu-item").click(function(){
+		var next=$(this).next();
+		if(next.is("ul"))
+		{
+			if(next.is(":visible"))
+			{
+				next.hide(100);
+				$(this).removeClass("second-on");
+				$(this).addClass("second-off");
+			}else{
+				next.show(100);
+				$(this).removeClass("second-off");
+				$(this).addClass("second-on");
+			}
+		}
+	});
+	//默认隐藏所有二级菜单
+	$(".sub-menu").hide();
+	$(".left-nav").niceScroll({
+        touchbehavior: !1,
+        cursorcolor: "#929292",
+        cursoropacitymax: .8,
+        cursorwidth: 10,
+        cursorborderradius: "0px",
+        cursorborder: "none"
+    });
+});
+</script>
+</html>

@@ -1,0 +1,339 @@
+<div class="nav">
+	<span>系统</span> > <span style="font-weight:bold;">角色管理</span>
+</div>
+<div class="search">
+	<div class="title">角色检索</div>
+	<div class="search-box" id="search-form">
+		<div class="search-item"><span>角色名</span><input type="text" id="searchRoleName"></div>
+		<div class="search-item"><input class="btn" name="secrch_btn" value="搜索" type="submit" id="search"></div>
+		<div class="cb"></div>
+	</div>
+</div>
+<div class="toolbar">
+	<button id="addButton" type="button">添加角色</button>
+</div>
+<div class="dataList">
+	<table cellspacing="0" cellpadding="0" border="0">
+		<thead>
+			<tr class="">
+				<td width="10%">角色ID</td>
+				<td width="20%">角色名</td>
+				<td width="20%">编码</td>
+				<td width="30%">描述</td>
+				<td width="20%">操作</td>
+			</tr>
+		</thead>
+		<tbody id="tbody">
+			<tr class=""><td class="no-records" colspan="20">没有找到任何记录</td></tr>
+		</tbody>
+	</table>
+</div>
+<div class="list-page">
+	<div class="page">
+		<img id="loadimg" src="/images/load.gif" style="float:left;margin-top:3px;">
+		<div class="pageInfo">第1/1 页，总计 0个记录</div>
+		<div class="pageSize">每页
+			<select id="pageSize">
+				<option value="1">1</option>
+				<option value="10" selected="selected">10</option>
+				<option value="20">20</option>
+				<option value="50">50</option>
+				<option value="100">100</option>
+			</select>
+		</div>
+		<div class="goPage">至 <input size="3" value="1" type="text" id="changePage"></div>
+		<div class="pageLink" id="pageLink">
+			<a href="javascript:void(0);" class="first" title="第一页"><img src="/images/first_page.png"></a>
+			<a href="javascript:void(0);" class="prev" title="上一页"><img src="/images/prevpage.png"></a>
+			<a href="javascript:void(0);" class="next" title="下一页"><img src="/images/nextpage.png"></a>
+			<a href="javascript:void(0);" class="last" title="最末页"><img src="/images/last_page.png"></a>
+		</div>
+	</div>
+</div>
+<div class="cb"></div>
+<div id="addUserContent" style="display:none;">
+	<div class="edit-form" id="editForm">
+		<div class="form-item">角色名称：<input type="text" id="roleName"></div>
+		<div class="form-item">角色编码：<input type="text" id="roleCode">（注：一般英文）</div>
+		<div class="form-item">角色描述：<input type="text" id="roleDesc"><span>（注：相关职责介绍）</span></div>
+		<div class="form-item" style="clear:left;"><input class="btn" type="submit" value="确定" id="submit"></div>
+		<div class="form-item">相关权限：<div id="tree" style="margin-left:60px;"></div></div>
+		<input type="hidden" id="id">
+
+	</div>
+</div>
+<link rel="stylesheet" href="/js/layui/css/layui.css">
+<script src="/js/layui/layui.js"></script>
+<script src="/js/layer/layer.js"></script>
+<script>
+$(document).ready(function(){
+layui.use(['tree', 'util'], function() {
+	var $ = layui.$;
+	var tree = layui.tree;
+	var layer = layui.layer;
+	var util = layui.util;
+
+	var pub = {
+		treeTransArray: function(tree, key) {
+			return tree.reduce(
+					function(con, item) {
+						var callee = arguments.callee;
+						con.push(item);
+						if (item[key] && item[key].length >0)
+							item[key].reduce(callee, con);
+						return con;
+					}, []).map(function(item){
+				item[key] = [];
+				return item;
+			})
+		},
+		arrayTransTree: function(list ,key) {
+			var tree = list.filter(function(parent) {
+				var branchArr = list.filter(function(child) {
+					return parent.id == child[key];
+				});
+				parent.nodes = [];
+				if (branchArr.length > 0) {
+					parent.nodes = branchArr;
+				}
+				return parent[key] == "";
+			});
+			return tree;
+		}
+	};
+	var totalPages=0;
+	var totalCounts=0;
+	var pageSize=10;
+	var currentPage=1;
+	var layerWindow;
+	//注册分页事件
+	function registerPageEvent()
+	{
+		$("#changePage").keyup(function(event){
+			if(event.keyCode ==13){
+				if($(this).val()<1||$(this).val()>totalPages)
+				{
+					$(this).val(1);
+					return;
+				}
+				currentPage=parseInt($(this).val());
+				loadData();
+			}
+		});
+		$("#pageSize").change(function(){
+			pageSize=$(this).val();
+			currentPage=1;
+			loadData();
+		});
+		$("#pageLink .first").click(function(){
+			currentPage=1;
+			loadData();
+		});
+		$("#pageLink .prev").click(function(){
+			if(currentPage==1)return;
+			currentPage=currentPage-1;
+			loadData();
+		});
+		$("#pageLink .next").click(function(){
+			if(currentPage==totalPages)return;
+			currentPage=currentPage+1;
+			loadData();
+		});
+		$("#pageLink .last").click(function(){
+			currentPage=totalPages;
+			loadData();
+		});
+	}
+	function registerEditEvent(){
+		$(".delItem").click(function(){
+			var id=$(this).attr("itemId");
+			$.ajax({
+				async: true, cache: false, type: 'POST', dataType: "json", data: {id:id}, url: "/system/role/delete",
+				// 请求的action路径
+				success: function (response) {
+					if(response.code==200)
+					{
+						layer.msg(response.msg,{time:1000});
+						loadData();
+					}else if(response.code==-1){//登录超时
+						window.location="/login";
+					}else{
+						layer.msg(response.msg,{time:1000});
+					}
+				}
+			});
+		});
+		$(".editItem").click(function(){
+			var id=$(this).attr("itemId");
+			$.ajax({
+				async: true, cache: false, type: 'POST', dataType: "json", data: {id:id}, url: "/system/role/loaditem",
+				// 请求的action路径
+				success: function (response) {
+					if(response.code==200)
+					{
+						layerWindow =layer.open({
+							type: 1,
+							title:"编辑角色",
+							skin: 'layui-layer-rim', //加上边框
+							area: ['600px', '450px'], //宽高
+							content: $("#addUserContent"),
+						});
+						$("#editForm #roleName").val(response.data.name);
+						$("#editForm #roleCode").val(response.data.code);
+						$("#editForm #roleDesc").val(response.data.description);
+						//$("#editForm #permissionList").val(response.data.permissionStr);
+
+						var data = JSON.parse(response.data.permissionStr);
+						//基本演示
+						tree.render({
+							elem: '#tree'
+							,data: data
+							,showCheckbox: true  //是否显示复选框
+							,id: 'treeId'
+							,isJump: false //是否允许点击节点时弹出新窗口跳转
+							,click: function(obj){}
+						});
+						$("#editForm #id").val(id);
+
+
+
+
+					}else if(response.code==-2){//登录超时
+						window.location="/login";
+					}else{
+						layer.msg(response.msg,{time:1000});
+					}
+				}
+			});
+		});
+	}
+	function loadData()
+	{
+		$(".pageInfo").html("正在加载...");
+		$("#loadimg").show();
+		var query={};
+		if(currentPage<1)currentPage=1;
+		if(currentPage>totalPages&&totalPages!=0)currentPage=totalPages;
+		query.pageNo=currentPage;
+		query.pageSize=pageSize;
+		query.roleName=$("#search-form #searchRoleName").val();
+		$.ajax({
+			async: true, cache: false, type: 'GET', dataType: "json", data: query, url: "/system/role/list",
+			// 请求的action路径
+			success: function (response) {
+				if(response.code==200)
+				{
+					$("#tbody").html("");
+					if(response.data!=undefined)
+					{
+						for(var i=0;i<response.data.length;i++)
+						{
+							var item=response.data[i];
+							var resultRow=  "<tr>"
+									+"    <td width=\"10%\">"+item.id+"</td>"
+									+"    <td width=\"20%\">"+item.name+"</td>"
+									+"    <td width=\"20%\">"+item.code+"</td>"
+									+"    <td width=\"30%\">"+item.description+"</td>"
+									+"    <td width=\"20%\">"+item.operate+"</td>"
+									+"</tr>";
+							$("#tbody").append(resultRow);
+						}
+						//处理分页
+						totalCounts=response.total;
+						totalPages = Math.ceil(totalCounts / pageSize);
+						$(".pageInfo").html("第"+currentPage+"/"+totalPages+" 页，共"+totalCounts+"条记录");
+						//注册事件
+                        registerEditEvent();
+					}else{
+						$("#tbody").html("<tr class=\"\"><td class=\"no-records\" colspan=\"20\">没有找到任何记录</td></tr>");
+						$(".pageInfo").html("");
+					}
+				}else if(response.code==-1){//登录超时
+					window.location="/login";
+				}else{
+					$("#tbody").html("<tr class=\"\"><td class=\"no-records\" colspan=\"20\">请求失败，网络错误</td></tr>");
+				}
+				$("#loadimg").hide();
+			},
+			complete : function(XMLHttpRequest, textStatus) {
+				var sessionstatus = XMLHttpRequest.getResponseHeader("sessionstatus");
+				if (sessionstatus == "timeout")window.location.replace("login");
+			}
+		});
+	}
+	pageSize=10;
+	currentPage=1;
+	registerPageEvent();
+	loadData();
+	$("#search").click(function(){
+		pageSize=$("#pageSize").val();
+		loadData();
+	});
+	$("#addButton").click(function(){
+		layerWindow =layer.open({
+			type: 1,
+			title:"添加角色",
+			skin: 'layui-layer-rim', //加上边框
+			area: ['600px', '450px'], //宽高
+			content: $("#addUserContent"),
+		});
+		$("#editForm #roleName").val("");
+		$("#editForm #roleCode").val("");
+		$("#editForm #roleDesc").val("");
+		$("#editForm #permissionList").val("");
+		$("#editForm #id").val("");
+
+
+		var data = JSON.parse("${treeData}");
+		//基本演示
+		tree.render({
+			elem: '#tree'
+			,data: data
+			,showCheckbox: true  //是否显示复选框
+			,id: 'treeId'
+			,isJump: false //是否允许点击节点时弹出新窗口跳转
+			,click: function(obj){}
+		});
+	});
+	$("#submit").click(function(){
+		var query={};
+		query.name=$("#editForm #roleName").val();
+		query.code=$("#editForm #roleCode").val();
+		query.description=$("#editForm #roleDesc").val();
+		query.id=$("#editForm #id").val();
+		var url="";
+		if(parseInt(query.id)>0)url="/system/role/update";
+		else url="/system/role/add";
+		//获取选中的权限节点
+		var checkedData = tree.getChecked('treeId'); //获取选中节点的数据
+		var arr = pub.treeTransArray(checkedData,'children'); //输出转换后数组
+		var permissionIds="";
+		for(var i=0;i<arr.length;i++){
+			permissionIds+=arr[i].id+",";
+		}
+		if(permissionIds.indexOf(",")>0)permissionIds=permissionIds.slice(0,permissionIds.length-1);
+		query.permissionIds=permissionIds;
+		$.ajax({
+			async: true, cache: false, type: 'POST', dataType: "json", data: query, url: url,
+			// 请求的action路径
+			success: function (response) {
+				if(response.code==200)
+				{
+					layer.msg(response.msg,{time:1000});
+					setTimeout(function(){layer.close(layerWindow);},100);
+					loadData();
+				}else if(response.code==-1){//登录超时
+					window.location="/login";
+				}else{
+					layer.msg(response.msg);
+				}
+			},
+			complete : function(XMLHttpRequest, textStatus) {
+				var sessionstatus = XMLHttpRequest.getResponseHeader("sessionstatus");
+				if (sessionstatus == "timeout")window.location.replace("login");
+			}
+		});
+	});
+});
+});
+</script>
