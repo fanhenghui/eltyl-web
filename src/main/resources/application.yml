@@ -7,7 +7,7 @@ spring:
     url: jdbc:mysql://127.0.0.1/eltyl_web?serverTimezone=GMT%2B8&characterEncoding=utf-8&useSSL=false
     username: root
     password: 123456
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    driver-class-name: com.mysql.jdbc.Driver
     #使用druid连接池
     type: com.alibaba.druid.pool.DruidDataSource
     #druid相关配置
@@ -49,6 +49,8 @@ spring:
 logging:
   level:
     com.eltyl: debug
+  pattern:
+    level: debug
 eltyl:
   security:
     code:

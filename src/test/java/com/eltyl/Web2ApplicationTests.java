@@ -1,6 +1,9 @@
 package com.eltyl;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.eltyl.annotation.MyAnno;
 import com.eltyl.mapper.SysPermissionMapper;
 import com.eltyl.mapper.SysRoleMapper;
@@ -8,6 +11,8 @@ import com.eltyl.mapper.SysUserMapper;
 import com.eltyl.model.SysPermission;
 import com.eltyl.model.SysRole;
 import com.eltyl.model.SysUser;
+import com.eltyl.model.qo.RoleQuery;
+import com.eltyl.model.vo.Permission;
 import com.eltyl.util.ConvertUtil;
 import com.eltyl.util.DateUtil;
 import com.eltyl.util.JwtUtil;
@@ -26,8 +31,9 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.authentication.RememberMeAuthenticationToken;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class Web2ApplicationTests {
@@ -93,9 +99,31 @@ public class Web2ApplicationTests {
     @Autowired
     public PasswordEncoder passwordEncoder;
     @Test
+    @Ignore
     public void updatePassword(){
         String aaa=passwordEncoder.encode("123456");
         System.out.println(aaa);
-        System.out.println(passwordEncoder.matches("123456",aaa));
+        //System.out.println(passwordEncoder.matches("123456",aaa));
+        System.out.println(AnonymousAuthenticationToken.class.isAssignableFrom(RememberMeAuthenticationToken.class));
+        System.out.println(RememberMeAuthenticationToken.class.isAssignableFrom(RememberMeAuthenticationToken.class));
+    }
+    @Test
+    @Ignore
+    public void testPage(){
+        RoleQuery query=new RoleQuery();
+        query.setPageNo(1);
+        query.setPageSize(1);
+        //,new QueryWrapper<SysRole>().like("name","员")
+        IPage<SysRole> result=sysRoleMapper.selectPage(new Page<SysRole>(query.getPageNo(), query.getPageSize()),null);
+        System.out.println("getTotal is:"+result.getTotal());//总记录数
+        System.out.println("getPages is:"+result.getPages());//总页数
+        System.out.println("getRecords is:"+result.getRecords());
+    }
+    @Test
+    public void testJson(){
+        String json="[{\"checked\":false,\"id\":1,\"pid\":0,\"title\":\"管理商品\",\"children\":[{\"checked\":false,\"id\":5,\"pid\":1,\"title\":\"查看商品\"}]}]";
+        List<Permission> list=(List<Permission>)JSON.parse(json);
+        System.out.println(list);
+        System.out.println(list.get(0).getTitle());
     }
 }

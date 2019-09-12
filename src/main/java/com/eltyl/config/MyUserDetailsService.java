@@ -1,19 +1,16 @@
 package com.eltyl.config;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.eltyl.exception.LoginAccessException;
 import com.eltyl.mapper.SysPermissionMapper;
 import com.eltyl.mapper.SysRoleMapper;
 import com.eltyl.mapper.SysUserMapper;
-import com.eltyl.model.MyUser;
 import com.eltyl.model.SysPermission;
 import com.eltyl.model.SysRole;
 import com.eltyl.model.SysUser;
 import com.eltyl.util.ConvertUtil;
+import com.eltyl.util.RoleCache;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -27,10 +24,6 @@ import java.util.List;
 @Service
 public class MyUserDetailsService implements UserDetailsService {
     @Autowired
-    private PasswordEncoder passwordEncoder;
-    @Autowired
-    private SysUserMapper sysUserMapper;
-    @Autowired
     private SysRoleMapper sysRoleMapper;
     @Autowired
     private SysPermissionMapper sysPermissionMapper;
@@ -43,6 +36,10 @@ public class MyUserDetailsService implements UserDetailsService {
         }
         return sysPermissionMapper.selectBatchIds(permissionIdList);
     }
+    @Autowired
+    private SysUserMapper sysUserMapper;
+    @Autowired
+    private RoleCache roleCache;
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         //1.手动添加固定用户
@@ -52,7 +49,6 @@ public class MyUserDetailsService implements UserDetailsService {
         QueryWrapper<SysUser> wrapper = new QueryWrapper<>();
         wrapper.eq("username",username);
         SysUser user=sysUserMapper.selectOne(wrapper);
-        User myUser=null;
         if(user!=null){
             //3.查询用户权限
             List<SysPermission> permissionList=findPermissionByRoleIds(user.getRoleIds());
@@ -61,11 +57,11 @@ public class MyUserDetailsService implements UserDetailsService {
             for(SysPermission permission:permissionList){
                 authorityList.add(new SimpleGrantedAuthority(permission.getCode()));
             }
-            myUser = new User(username,user.getPassword(),true,true,true,true,authorityList);
+            user.setRoleCodeList(roleCache.getRoleCodeList(user.getRoleIds()));
+            return new SecurityUser(user,authorityList);
         }else{
             throw new UsernameNotFoundException("用户不存在");
         }
-        return myUser;
     }
 
 }

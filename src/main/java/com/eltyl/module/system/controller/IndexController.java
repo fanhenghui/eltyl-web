@@ -8,12 +8,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 public class IndexController {
-
-    //@PreAuthorize("hasAuthority('Index')")
-    @RequestMapping("/")
-    public String index(){
-        return "index";
-    }
     //@PreAuthorize("hasPermission('good_add')")
     @PreAuthorize("hasAnyRole('good:test')")
     @RequestMapping("/test")
@@ -26,6 +20,7 @@ public class IndexController {
     @RequestMapping("/test2")
     @ResponseBody
     public String test2(){
+        System.out.println("in test2");
         return "异常";
     }
     @RequestMapping("/haha2")
