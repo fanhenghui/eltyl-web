@@ -1,0 +1,35 @@
+{
+  "groups": [{
+    "name": "eltyl.security",
+    "type": "com.eltyl.properties.SecurityProperties",
+    "sourceType": "com.eltyl.properties.SecurityProperties"
+  }],
+  "properties": [
+    {
+      "name": "eltyl.security.code",
+      "type": "com.eltyl.properties.ValidateCodeProperties",
+      "description": "验证码配置",
+      "sourceType": "com.eltyl.properties.SecurityProperties"
+    },
+    {
+      "name": "eltyl.security.remember-me-seconds",
+      "type": "java.lang.Integer",
+      "description": "记住我的有效时间秒",
+      "sourceType": "com.eltyl.properties.SecurityProperties",
+      "defaultValue": 0
+    },
+    {
+      "name": "eltyl.security.session",
+      "type": "com.eltyl.properties.SessionProperties",
+      "description": "session配置过期和并发登录",
+      "sourceType": "com.eltyl.properties.SecurityProperties"
+    },
+    {
+      "name": "eltyl.security.sign-out-url",
+      "type": "java.lang.String",
+      "sourceType": "com.eltyl.properties.SecurityProperties",
+      "defaultValue": "/logout.html"
+    }
+  ],
+  "hints": []
+}
